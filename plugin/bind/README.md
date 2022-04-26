@@ -86,7 +86,7 @@ You can exclude some addresses by their IP or interface name (The following will
 
 ### Avoiding Listener Contention
 
-TLDR: When adding the bind plugin to a server block, it must also be added to all other server blocks that listen on the same port.
+TL;DR, When adding the _bind_ plugin to a server block, it must also be added to all other server blocks that listen on the same port.
 
 When more than one server block is configured to listen to a common port, those server blocks must either
 all use the _bind_ plugin, or all use default binding (no _bind_ plugin).  Note that "port" here refers the TCP/UDP port that
