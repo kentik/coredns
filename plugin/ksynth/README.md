@@ -34,9 +34,15 @@ hosts [ZONES...] {
   If **[ZONES...]** is omitted, then fallthrough happens for all zones for which the plugin
   is authoritative. If specific zones are listed (for example `in-addr.arpa` and `ip6.arpa`), then only
   queries for those zones will be subject to fallthrough.
-**OPTIMIZATION_POLICY** is one of avg_ping_time,max_ping_time,min_packet_loss
+* **OPTIMIZATION_POLICY** is one of avg_ping_time,max_ping_time,min_packet_loss
 
 ## Metrics
+
+If monitoring is enabled (via the *prometheus* plugin) then the following metrics are exported:
+
+- `coredns_ksynth_entries{}` - The combined number of entries in hosts and Corefile.
+- `coredns_ksynth_update_timestamp_seconds{}` - The timestamp of the last update from Kentik Firehose.
+- `coredns_ksynth_errors{}` - The total number of errors seen by ksynth processing updates.
 
 If monitoring is enabled (via the *prometheus* plugin) then the following metrics are exported:
 

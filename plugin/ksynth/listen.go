@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/coredns/coredns/plugin"
 	jsoniter "github.com/json-iterator/go"
@@ -161,7 +162,8 @@ func (ks *KsynthListen) readBatch(w http.ResponseWriter, r *http.Request) {
 	ks.Lock()
 	ks.hmap = newMap
 	ks.updates = newUpdates
-	hostsEntries.WithLabelValues().Set(float64(ks.hmap.Len()))
+	ksynthEntries.WithLabelValues().Set(float64(ks.hmap.Len()))
+	ksynthUpdateTime.Set(float64(time.Now().UnixNano()))
 	ks.Unlock()
 }
 
@@ -229,7 +231,7 @@ func (ks *KsynthListen) wrap(f handler) handler {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {
-				//ks.metrics.Errors.Mark(1)
+				ksynthErrors.WithLabelValues().Inc()
 				if code, ok := r.(int); ok {
 					http.Error(w, http.StatusText(code), code)
 					return

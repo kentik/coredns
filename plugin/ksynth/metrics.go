@@ -8,18 +8,25 @@ import (
 )
 
 var (
-	// hostsEntries is the combined number of entries in hosts and Corefile.
-	hostsEntries = promauto.NewGaugeVec(prometheus.GaugeOpts{
+	// ksynthEntries is the number of entries in ksynth.
+	ksynthEntries = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: plugin.Namespace,
 		Subsystem: "ksynth",
 		Name:      "entries",
-		Help:      "The combined number of entries in hosts and Corefile.",
+		Help:      "The number of entries in ksynth.",
 	}, []string{})
-	// hostsReloadTime is the timestamp of the last reload of hosts file.
-	hostsReloadTime = promauto.NewGauge(prometheus.GaugeOpts{
+	// ksynthUpdateTime is the timestamp of the last update from firehose.
+	ksynthUpdateTime = promauto.NewGauge(prometheus.GaugeOpts{
 		Namespace: plugin.Namespace,
 		Subsystem: "ksynth",
-		Name:      "reload_timestamp_seconds",
-		Help:      "The timestamp of the last reload of hosts file.",
+		Name:      "update_timestamp_seconds",
+		Help:      "The timestamp of the last update from Kentik Firehose.",
 	})
+	// ksynthErrors is a counter of errors processing updates.
+	ksynthErrors = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: plugin.Namespace,
+		Subsystem: "ksynth",
+		Name:      "errors",
+		Help:      "The total number of errors seen by ksynth processing updates.",
+	}, []string{})
 )
