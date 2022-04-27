@@ -44,8 +44,6 @@ If monitoring is enabled (via the *prometheus* plugin) then the following metric
 - `coredns_ksynth_update_timestamp_seconds{}` - The timestamp of the last update from Kentik Firehose.
 - `coredns_ksynth_errors{}` - The total number of errors seen by ksynth processing updates.
 
-If monitoring is enabled (via the *prometheus* plugin) then the following metrics are exported:
-
 ## Examples
 
 Listen on 127.0.0.1:8090 and return the result with min packet loss.
