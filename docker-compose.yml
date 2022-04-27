@@ -1,0 +1,27 @@
+version: "3.4"
+services:
+  coredns:
+    container_name: coredns
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: coredns:latest
+    command: -conf /Corefile -dns.port 5354
+    volumes:
+      - ./Corefile:/Corefile
+    network_mode: host
+  ktranslate:
+    container_name: ktranslate
+    image: ktranslate:v2
+    command:
+      - --dns=local
+      - --listen=0.0.0.0:8080
+      - --kentik_email=${KENTIK_EMAIL}
+      - --format=flat_json
+      - --sinks=http
+      - --http_url=http://127.0.0.1:8090/input/ksynth/batch
+      - '--http_header=Content-Type: application/json'
+      - --metalisten=127.0.0.1:8070
+    network_mode: host
+    environment:
+      KENTIK_API_TOKEN: ${KENTIK_API_TOKEN}
