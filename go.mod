@@ -7,14 +7,14 @@ require (
 	github.com/Azure/go-autorest/autorest v0.11.27
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/apparentlymart/go-cidr v1.1.0
-	github.com/aws/aws-sdk-go v1.43.45
+	github.com/aws/aws-sdk-go v1.44.1
 	github.com/coredns/caddy v1.1.1
 	github.com/dnstap/golang-dnstap v0.4.0
 	github.com/farsightsec/golang-framestream v0.3.0
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/infobloxopen/go-trees v0.0.0-20200715205103-96a057b8dfb9
 	github.com/json-iterator/go v1.1.12
-	github.com/kentik/ktranslate v0.0.0-20220420164930-60788f22bfe6
+	github.com/kentik/ktranslate v0.0.0-20220425184533-4c1a17d00bad
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/miekg/dns v1.1.48
 	github.com/opentracing/opentracing-go v1.2.0
@@ -27,15 +27,15 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
-	google.golang.org/api v0.75.0
-	google.golang.org/grpc v1.46.0
+	golang.org/x/sys v0.0.0-20220328115105-d36c6a25d886
+	google.golang.org/api v0.74.0
+	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.38.0
 	k8s.io/api v0.23.6
 	k8s.io/apimachinery v0.23.6
 	k8s.io/client-go v0.23.6
-	k8s.io/klog/v2 v2.60.1
+	k8s.io/klog/v2 v2.30.0
 )
 
 require (
@@ -86,13 +86,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-<<<<<<< HEAD
-	github.com/tinylib/msgp v1.1.2 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
-=======
 	github.com/tinylib/msgp v1.1.6 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.3 // indirect
->>>>>>> 1c2adec9... New system for getting values via kentik firehose and ksynth
+	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
