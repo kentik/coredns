@@ -99,6 +99,8 @@ type Update struct {
 	AgentName   string  `json:"agent_name"`
 	PingSent    int     `json:"fetch_status_|_ping_sent_|_trace_time"`
 	PingLost    int     `json:"fetch_ttlb_|_ping_lost"`
+	PacketLost  float64
+	Seen        time.Time
 }
 
 // KsynthListen contains known host entries.
@@ -112,7 +114,7 @@ type KsynthListen struct {
 	hmap *Map
 
 	// updates keep track of current state of best times by host.
-	updates map[string]Update
+	updates map[string]*Update
 
 	options *options
 
@@ -135,7 +137,7 @@ func (ks *KsynthListen) listen() {
 }
 
 func (ks *KsynthListen) readBatch(w http.ResponseWriter, r *http.Request) {
-	var wrapper []Update
+	var wrapper []*Update
 
 	// Decode body in gzip format if the request header is set this way.
 	body := r.Body
@@ -167,29 +169,17 @@ func (ks *KsynthListen) readBatch(w http.ResponseWriter, r *http.Request) {
 	ks.Unlock()
 }
 
-func (h *KsynthListen) optimize(w []Update) map[string]Update {
+func (h *KsynthListen) optimize(w []*Update) map[string]*Update {
 
 	// Sort by host. Pick out the lowest pingtime for each host here, return just the entry for this host.
-	hosts := h.optimizer(w)
+	hosts := h.optimizer(w, h)
 
 	log.Infof("Reduced entries from %d to %d in optimization", len(w), len(hosts))
-
-	// Now add in any entries which arn't present in this update but were set previously.
-	// XX Should we do this?
-	h.RLock()
-	old := h.updates
-	h.RUnlock()
-
-	for hostname, update := range old {
-		if _, ok := hosts[hostname]; !ok { // Nothing here for this host, just add it in.
-			hosts[hostname] = update
-		}
-	}
 
 	return hosts
 }
 
-func (h *KsynthListen) parse(w []Update) (*Map, map[string]Update) {
+func (h *KsynthListen) parse(w []*Update) (*Map, map[string]*Update) {
 	hmap := newMap()
 
 	updates := h.optimize(w)
