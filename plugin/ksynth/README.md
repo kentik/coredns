@@ -59,6 +59,14 @@ example.hosts example.org {
 }
 ~~~
 
+## Docker Compose
+
+Run with docker-compose like
+
+```
+KENTIK_API_TOKEN=FOO KENTIK_EMAIL=bar@email.com docker-compose up
+```
+
 ## See also
 
 An overview of Kentik Synthetics: https://www.kentik.com/product/synthetics/
