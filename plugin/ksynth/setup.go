@@ -41,6 +41,7 @@ func ksynthParse(c *caddy.Controller) (Ksynth, error) {
 		KsynthListen: &KsynthListen{
 			hmap:    newMap(),
 			options: newOptions(),
+			updates: map[string]*Update{},
 		},
 	}
 

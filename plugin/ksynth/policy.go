@@ -32,6 +32,9 @@ func common(w []*Update, ks *KsynthListen, pol func([]*Update, map[string]*Updat
 	ks.RUnlock() // Now we have a local copy to work on, don't need to worry about locking.
 
 	for i, h := range w {
+		if h == nil {
+			continue
+		}
 		hostname := plugin.Name(h.Host).Normalize()
 		h.Seen = now
 		if _, ok := hosts[hostname]; !ok { // Nothing here for this host, just add it in.
