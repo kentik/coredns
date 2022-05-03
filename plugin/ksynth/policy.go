@@ -11,6 +11,7 @@ const (
 	LowestAvgPingTime = "avg_ping_time"
 	LowestMaxPingTime = "max_ping_time"
 	MinPacketLoss     = "min_packet_loss"
+	AllUp             = "all_up"
 
 	MAX_LOSS = 110.
 
@@ -32,9 +33,12 @@ func common(w []*Update, ks *KsynthListen, pol func([]*Update, map[string]*Updat
 	ks.RUnlock() // Now we have a local copy to work on, don't need to worry about locking.
 
 	for i, h := range w {
-		if h == nil {
+		if h == nil || !h.IsUp() {
+			w[i] = nil
 			continue
 		}
+		h.Init()
+
 		hostname := plugin.Name(h.Host).Normalize()
 		h.Seen = now
 		if _, ok := hosts[hostname]; !ok { // Nothing here for this host, just add it in.
@@ -55,6 +59,11 @@ func common(w []*Update, ks *KsynthListen, pol func([]*Update, map[string]*Updat
 	// w at this time should be only new entries who haven't been automatically added to the update map.
 	pol(w, hosts)
 
+	for _, h := range hosts {
+		h.Finalize()
+		log.Infof("XXX %v", h.TargetIPs)
+	}
+
 	return hosts
 }
 
@@ -74,6 +83,22 @@ func AvgPingTime(w []*Update, ks *KsynthListen) map[string]*Update {
 	}
 
 	return common(w, ks, avg)
+}
+
+func AllUpPolicy(w []*Update, ks *KsynthListen) map[string]*Update {
+	all := func(updates []*Update, all map[string]*Update) {
+		for _, h := range updates {
+			if h == nil {
+				continue // h already handled outside.
+			}
+
+			// If host is up, add to list.
+			hostname := plugin.Name(h.Host).Normalize()
+			all[hostname].TargetIPs[h.IP.String()] = h.IP
+		}
+	}
+
+	return common(w, ks, all)
 }
 
 func MaxPingTime(w []*Update, ks *KsynthListen) map[string]*Update {
@@ -115,7 +140,7 @@ func PacketLoss(w []*Update, ks *KsynthListen) map[string]*Update {
 			}
 
 			hostname := plugin.Name(h.Host).Normalize()
-			if h.PacketLost < all[hostname].PacketLost {
+			if all[hostname] == nil || h.PacketLost < all[hostname].PacketLost {
 				all[hostname] = h
 			}
 		}
@@ -132,6 +157,8 @@ func GetPolicy(pol string) (optimizer, error) {
 		return MaxPingTime, nil
 	case MinPacketLoss:
 		return PacketLoss, nil
+	case AllUp:
+		return AllUpPolicy, nil
 	default:
 		return nil, fmt.Errorf("Invalid optimizing policy: %s", pol)
 	}

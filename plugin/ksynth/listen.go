@@ -101,6 +101,7 @@ type Update struct {
 	PingLost    int     `json:"fetch_ttlb_|_ping_lost"`
 	PacketLost  float64
 	Seen        time.Time
+	TargetIPs   map[string]net.IP
 }
 
 // KsynthListen contains known host entries.
@@ -184,34 +185,37 @@ func (h *KsynthListen) parse(w []*Update) (*Map, map[string]*Update) {
 
 	updates := h.optimize(w)
 	for _, update := range updates {
-		if update.IP == nil {
-			continue
-		}
-
-		family := 0
-		if update.IP.To4() != nil {
-			family = 1
-		} else {
-			family = 2
-		}
-
 		name := plugin.Name(update.Host).Normalize()
 		if plugin.Zones(h.Origins).Matches(name) == "" {
 			// name is not in Origins
 			continue
 		}
-		switch family {
-		case 1:
-			hmap.name4[name] = append(hmap.name4[name], update.IP)
-		case 2:
-			hmap.name6[name] = append(hmap.name6[name], update.IP)
-		default:
-			continue
+
+		for _, ip := range update.TargetIPs {
+			if ip == nil {
+				continue
+			}
+
+			family := 0
+			if ip.To4() != nil {
+				family = 1
+			} else {
+				family = 2
+			}
+
+			switch family {
+			case 1:
+				hmap.name4[name] = append(hmap.name4[name], ip)
+			case 2:
+				hmap.name6[name] = append(hmap.name6[name], ip)
+			default:
+				continue
+			}
+			if !h.options.autoReverse {
+				continue
+			}
+			hmap.addr[ip.String()] = append(hmap.addr[ip.String()], name)
 		}
-		if !h.options.autoReverse {
-			continue
-		}
-		hmap.addr[update.IP.String()] = append(hmap.addr[update.IP.String()], name)
 	}
 
 	return hmap, updates
@@ -286,4 +290,27 @@ func (h *KsynthListen) LookupStaticAddr(addr string) []string {
 	}
 
 	return hosts1
+}
+
+func (u *Update) Init() {
+	u.TargetIPs = map[string]net.IP{}
+}
+
+func (u *Update) Finalize() {
+	if u.TargetIPs == nil {
+		u.Init()
+	}
+
+	u.TargetIPs[u.IP.String()] = u.IP
+}
+
+// Right now, we only know how to care about ping result types.
+func (u *Update) IsUp() bool {
+	if u.ResultType == "ping" {
+		if u.PingTimeAvg > 0 {
+			return true
+		}
+	}
+
+	return false
 }

@@ -34,7 +34,13 @@ func TestLookupA(t *testing.T) {
 			Fall: tcFall,
 		}
 		h.optimizer, _ = GetPolicy(DefaultPolicy)
-		h.hmap, _ = h.parse(ksynthExample)
+		hmap, updates := h.parse(ksynthExample)
+		if len(updates) != 4 {
+			t.Errorf("Expected 4 ips seen in updates, instead %d", len(updates))
+			return
+		}
+		h.hmap = hmap
+
 		rec := dnstest.NewRecorder(&test.ResponseWriter{})
 
 		rcode, err := h.ServeDNS(context.Background(), rec, m)
@@ -110,23 +116,33 @@ var hostsTestCases = []test.Case{
 
 var ksynthExample = []*Update{
 	&Update{
-		IP:   net.ParseIP("127.0.0.1"),
-		Host: "localhost",
+		IP:          net.ParseIP("127.0.0.1"),
+		Host:        "localhost",
+		ResultType:  "ping",
+		PingTimeAvg: 100,
 	},
 	&Update{
-		IP:   net.ParseIP("::1"),
-		Host: "localhost",
+		IP:          net.ParseIP("::1"),
+		Host:        "localhost",
+		ResultType:  "ping",
+		PingTimeAvg: 100,
 	},
 	&Update{
-		IP:   net.ParseIP("10.0.0.1"),
-		Host: "example.org",
+		IP:          net.ParseIP("10.0.0.1"),
+		Host:        "example.org",
+		ResultType:  "ping",
+		PingTimeAvg: 100,
 	},
 	&Update{
-		IP:   net.ParseIP("::FFFF:10.0.0.2"),
-		Host: "example.com",
+		IP:          net.ParseIP("::FFFF:10.0.0.2"),
+		Host:        "example.com",
+		ResultType:  "ping",
+		PingTimeAvg: 100,
 	},
 	&Update{
-		IP:   net.ParseIP("10.0.0.3"),
-		Host: "fallthrough-example.org",
+		IP:          net.ParseIP("10.0.0.3"),
+		Host:        "fallthrough-example.org",
+		ResultType:  "ping",
+		PingTimeAvg: 100,
 	},
 }
