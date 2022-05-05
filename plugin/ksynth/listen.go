@@ -306,7 +306,7 @@ func (u *Update) Finalize() {
 
 // Right now, we only know how to care about ping result types.
 func (u *Update) IsUp() bool {
-	if u.ResultType == "ping" {
+	if u.Host != "" && u.ResultType == "ping" {
 		if u.PingTimeAvg > 0 {
 			return true
 		}

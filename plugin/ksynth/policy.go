@@ -61,7 +61,6 @@ func common(w []*Update, ks *KsynthListen, pol func([]*Update, map[string]*Updat
 
 	for _, h := range hosts {
 		h.Finalize()
-		log.Infof("XXX %v", h.TargetIPs)
 	}
 
 	return hosts
