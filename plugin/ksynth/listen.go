@@ -304,8 +304,33 @@ func (u *Update) Finalize() {
 	u.TargetIPs[u.IP.String()] = u.IP
 }
 
+// Look at error and timeout cases here. These should be removed from the list of active ips.
+func (u *Update) IsDown() bool {
+	if u == nil {
+		return false
+	}
+
+	switch u.ResultType {
+	case "timeout", "error": // Should error be handled seperately?
+		// If result_type is error, handle here somehow else.
+		//b, _ := json.Marshal(u)
+		//log.Infof("XXX %v", string(b))
+
+		return true
+	}
+
+	return false
+}
+
 // Right now, we only know how to care about ping result types.
+/**
+{"dst_addr":"","test_name":"Home","ping_std_rtt":1407,"ping_max_rtt":7515,"ping_jit_rtt":2356,"ping_avg_rtt":5079,"test_id":3824,"task_id":3298826,"result_type_str":"timeout","agent_name":"bart.folsom","fetch_status_|_ping_sent_|_trace_time":5,"fetch_ttlb_|_ping_lost":0,"PacketLost":0,"Seen":"0001-01-01T00:00:00Z","TargetIPs":null}
+*/
 func (u *Update) IsUp() bool {
+	if u == nil {
+		return false
+	}
+
 	if u.Host != "" && u.ResultType == "ping" {
 		if u.PingTimeAvg > 0 {
 			return true

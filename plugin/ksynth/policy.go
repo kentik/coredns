@@ -33,8 +33,18 @@ func common(w []*Update, ks *KsynthListen, pol func([]*Update, map[string]*Updat
 	ks.RUnlock() // Now we have a local copy to work on, don't need to worry about locking.
 
 	for i, h := range w {
-		if h == nil || !h.IsUp() {
-			w[i] = nil
+		if !h.IsUp() {
+			if h.IsDown() { // Special handling here to remove from the list of possible answers.
+				// Way to optimize this? TaskID uniquely identifies an agent,target pair. If this target is down from this agent now, don't continue to serve it.
+				for host, u := range hosts {
+					if u.TaskID == h.TaskID {
+						log.Infof("Removing %v -- %v as it is marked down now", u.IP, u.Host)
+						delete(hosts, host)
+					}
+				}
+			}
+
+			w[i] = nil // Take this guy out of contention
 			continue
 		}
 		h.Init()
