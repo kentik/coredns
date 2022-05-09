@@ -13,6 +13,8 @@ import (
 	"github.com/coredns/coredns/plugin"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/kentik/ktranslate/pkg/eggs/kmux"
+	"github.com/kentik/odyssey/pkg/synthetics"
+	"github.com/miekg/dns"
 )
 
 const (
@@ -39,6 +41,10 @@ type options struct {
 
 	// Policy to use for picking which entry to use.
 	policy string
+
+	// API Creds for communicating with kentik APIs. Optional.
+	kentikEmail    string
+	kentikApiToken string
 }
 
 func newOptions() *options {
@@ -120,10 +126,16 @@ type KsynthListen struct {
 	options *options
 
 	optimizer optimizer
+
+	unknowns chan *dns.Msg
+
+	client *synthetics.Client
 }
 
 func (ks *KsynthListen) listen() {
 	log.Infof("Listening on %s%s with policy %v", ks.options.listen, ks.options.path, ks.options.policy)
+	go ks.handleUnknowns()
+
 	r := kmux.NewRouter()
 	r.HandleFunc(ks.options.path+"/ksynth/batch", ks.wrap(ks.readBatch))
 	server := &http.Server{Addr: ks.options.listen, Handler: r}

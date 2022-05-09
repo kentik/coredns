@@ -15,7 +15,8 @@ require (
 	github.com/infobloxopen/go-trees v0.0.0-20200715205103-96a057b8dfb9
 	github.com/json-iterator/go v1.1.12
 	github.com/kentik/ktranslate v0.0.0-20220425184533-4c1a17d00bad
-	github.com/matttproud/golang_protobuf_extensions v1.0.1
+	github.com/kentik/odyssey v0.0.0-20220504153307-e10d6a501b32
+	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369
 	github.com/miekg/dns v1.1.48
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
@@ -27,7 +28,7 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
-	golang.org/x/sys v0.0.0-20220328115105-d36c6a25d886
+	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6
 	google.golang.org/api v0.74.0
 	google.golang.org/grpc v1.45.0
 	google.golang.org/protobuf v1.28.0

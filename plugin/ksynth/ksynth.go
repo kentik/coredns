@@ -71,8 +71,10 @@ func (h Ksynth) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 			return plugin.NextOrFailure(h.Name(), h.Next, ctx, w, r)
 		}
 
-		// We want to send an NXDOMAIN, but because of /etc/hosts' setup we don't have a SOA, so we make it SERVFAIL
+		// We want to send an NXDOMAIN, but because of ksynth' setup we don't have a SOA, so we make it SERVFAIL
 		// to at least give an answer back to signals we're having problems resolving this.
+		// We also want to track these unknown IPs to see if we want to add a test for them.
+		h.unknowns <- r
 		return dns.RcodeServerFailure, nil
 	}
 

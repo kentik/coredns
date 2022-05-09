@@ -7,11 +7,17 @@ import (
 	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
 	clog "github.com/coredns/coredns/plugin/pkg/log"
+
+	"github.com/miekg/dns"
 )
 
 var log = clog.NewWithPlugin("ksynth")
 
 func init() { plugin.Register("ksynth", setup) }
+
+const (
+	ChanSlack = 1000
+)
 
 func setup(c *caddy.Controller) error {
 	h, err := ksynthParse(c)
@@ -37,14 +43,7 @@ func setup(c *caddy.Controller) error {
 }
 
 func ksynthParse(c *caddy.Controller) (Ksynth, error) {
-	h := Ksynth{
-		KsynthListen: &KsynthListen{
-			hmap:    newMap(),
-			options: newOptions(),
-			updates: map[string]*Update{},
-		},
-	}
-
+	h := newKsynth()
 	i := 0
 	for c.Next() {
 		if i > 0 {
@@ -98,6 +97,18 @@ func ksynthParse(c *caddy.Controller) (Ksynth, error) {
 				}
 				h.optimizer = pol
 				h.options.policy = policy[0]
+			case "kentik_email":
+				kentikEmail := c.RemainingArgs()
+				if len(kentikEmail) != 1 {
+					return h, c.Errf("kentik_email needs an argument")
+				}
+				h.options.kentikEmail = kentikEmail[0]
+			case "kentik_api_token":
+				kentikApiToken := c.RemainingArgs()
+				if len(kentikApiToken) != 1 {
+					return h, c.Errf("kentik_api_token needs an argument")
+				}
+				h.options.kentikApiToken = kentikApiToken[0]
 			default:
 				return h, c.Errf("unknown property '%s'", c.Val())
 			}
@@ -109,4 +120,15 @@ func ksynthParse(c *caddy.Controller) (Ksynth, error) {
 	}
 
 	return h, nil
+}
+
+func newKsynth() Ksynth {
+	return Ksynth{
+		KsynthListen: &KsynthListen{
+			hmap:     newMap(),
+			options:  newOptions(),
+			updates:  map[string]*Update{},
+			unknowns: make(chan *dns.Msg, ChanSlack),
+		},
+	}
 }
